@@ -26,8 +26,9 @@ people = list(reader)
 filtered = [
     p for p in people
     if p["gender"] == "M"
-    and p["city"] == "Grudziądz"
-    and 20 <= (2026 - int(p["born"])) <= 40
+    and p["birthPlace"] == "Grudziądz"
+    # Extract bith year from date in format RRRR-MM-DD
+    and 20 <= (2026 - int(p["birthDate"])) <= 40
 ]
 
 # --- 3. Tag jobs with LLM using Structured Output ---

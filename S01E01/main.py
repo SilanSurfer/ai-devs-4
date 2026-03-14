@@ -36,8 +36,8 @@ filtered = [
     p for p in people
     if p["gender"] == "M"
     and p["birthPlace"] == "Grudziądz"
-    # Extract bith year from date in format RRRR-MM-DD
-    and 20 <= (2026 - int(p["birthDate"])) <= 40
+    # Extract birth year from date in format RRRR-MM-DD
+    and 20 <= (2026 - int(p["birthDate"].split("-")[0])) <= 40
 ]
 logger.info("Filtered to %d people (male, Grudziądz, age 20-40)", len(filtered))
 logger.debug("Filtered people: %s", [f"{p['name']} {p['surname']}" for p in filtered])
@@ -98,8 +98,8 @@ for i, p in enumerate(filtered):
             "name": p["name"],
             "surname": p["surname"],
             "gender": p["gender"],
-            "born": int(p["born"]),
-            "city": p["city"],
+            "born": int(p["birthDate"].split("-")[0]),
+            "city": p["birthPlace"],
             "tags": tags_by_index[i],
         })
 

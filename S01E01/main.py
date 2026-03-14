@@ -5,6 +5,7 @@ import os
 
 import requests
 from dotenv import load_dotenv
+import openai
 from openai import OpenAI
 from pydantic import BaseModel
 
@@ -75,15 +76,22 @@ class JobTags(BaseModel):
 class TaggingResult(BaseModel):
     results: list[JobTags]
 
-
 logger.info("Sending %d jobs to LLM for tagging", len(filtered))
-completion = client.beta.chat.completions.parse(
-    model="gpt-4o-mini",
-    messages=[{"role": "user", "content": prompt}],
-    response_format=TaggingResult,
-)
+try:
+    completion = client.responses.parse(
+        model="gpt-4o-mini",
+        input=[{"role": "user", "content": prompt}],
+        text_format=TaggingResult,
+    )
+except openai.APIStatusError as e:
+    logger.error("OpenAI API error %s: %s", e.status_code, e.message)
+    raise
 
-tagging = completion.choices[0].message.parsed
+if completion.output_parsed is None:
+    logger.error("LLM returned no parsed output: %s", completion.output_text)
+    raise ValueError("LLM tagging returned no structured output")
+
+tagging = completion.output_parsed
 logger.debug("LLM tagging result: %s", tagging)
 
 # --- 4. Keep only people tagged with "transport" ---
